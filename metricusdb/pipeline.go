@@ -1,5 +1,7 @@
 package metricusdb
 
+import ()
+
 type Pipeline struct {
 	Input      chan SeriesList
 	Output     chan SeriesList
@@ -20,32 +22,6 @@ type SeriesList []Series
 
 type PipelineProcessor func(SeriesList) SeriesList
 
-func NewAverageSeriesPP() (pp PipelineProcessor) {
-	pp = func(sl SeriesList) SeriesList {
-		var acc float64
-		for i, _ := range sl[0].Metrics {
-			for x, _ := range sl {
-				acc += sl[x].Metrics[i].Value
-			}
-			sl[0].Metrics[i].Value = acc / float64(len(sl))
-		}
-		return sl[:1]
-	}
-	return
-}
-
-func NewScaleSeriesPP(scale float64) (pp PipelineProcessor) {
-	pp = func(sl SeriesList) SeriesList {
-		for _, series := range sl {
-			for _, metric := range series.Metrics {
-				metric.Value = metric.Value * scale
-			}
-		}
-		return sl
-	}
-	return
-}
-
 func NewPipeLine() *Pipeline {
 	return &Pipeline{
 		Input:      make(chan SeriesList),
@@ -65,4 +41,31 @@ func (p *Pipeline) Run() {
 		p.Output <- sl
 	}
 	close(p.Output)
+}
+
+func NewAverageSeriesPP() (pp PipelineProcessor) {
+	pp = func(sl SeriesList) SeriesList {
+		var acc float64
+		for i, _ := range sl[0].Metrics {
+			for x, _ := range sl {
+				acc += sl[x].Metrics[i].Value
+			}
+			sl[0].Metrics[i].Value = acc / float64(len(sl))
+		}
+		return sl[:1]
+	}
+	return
+}
+
+func NewScaleSeriesPP(scale float64) (pp PipelineProcessor) {
+	pp = func(sl SeriesList) SeriesList {
+		for seriesIndex, _ := range sl {
+			for metricIndex, _ := range sl[seriesIndex].Metrics {
+				metric := &sl[seriesIndex].Metrics[metricIndex]
+				metric.Value *= scale
+			}
+		}
+		return sl
+	}
+	return
 }

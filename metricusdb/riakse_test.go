@@ -28,9 +28,8 @@ func TestMetricsToTree(t *testing.T) {
 		`natasha.production.stack.6.cpu_load`,
 		`natasha.production.rds.5.load`,
 		`natasha.development.stack.1.cpu_load`,
-		`exo-relay.development.stack.1.cpu_load`,
 	}
-	tree := MetricsToTree(metrics, 4)
+	tree := MetricsToTree("natasha.*.*", metrics, 4)
 	for _, node := range tree {
 		fmt.Printf("%+v\n", *node)
 	}

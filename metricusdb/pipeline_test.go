@@ -7,7 +7,7 @@ import (
 
 func TestPipeLine(t *testing.T) {
 	p := NewPipeLine()
-	p.AddProcessor(ProcessorMap["averageSeries"]())
+	p.AddProcessor(NewAverageSeriesPP())
 	go p.Run()
 	p.Input <- SeriesList{
 		{
