@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 type GraphiteParser struct {
 	lex         *lexer
-	Target      string
+	Targets     []string
 	Funcs       []GraphiteFunction
 	currentFunc int
 }
@@ -20,6 +21,8 @@ type GraphiteFunction struct {
 }
 
 type GraphitePipeline struct {
+	from time.Time
+	to   time.Time
 	*Pipeline
 }
 
@@ -35,7 +38,7 @@ func (parser *GraphiteParser) Parse() {
 		case itemEOF, itemError:
 			break
 		case itemTarget:
-			parser.Target = i.val
+			parser.Targets = append(parser.Targets, i.val)
 		case itemFunction:
 			parser.Funcs = append(parser.Funcs, GraphiteFunction{
 				Func: i.val,

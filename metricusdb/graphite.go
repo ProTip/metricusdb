@@ -1,8 +1,10 @@
 package metricusdb
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+	"time"
 )
 
 type GraphiteNode struct {
@@ -29,12 +31,12 @@ func TargetToDimensions(target string) [][]string {
 
 // Takes a list of metrics and the query used to find them, then returns
 // a list of nodes in the format expected by graphic clients.
-func MetricsToTree(query string, metrics []string, depth int) []*GraphiteNode {
+func StreamsToTree(query string, streams []Stream, depth int) []*GraphiteNode {
 	tree := make(map[string]*GraphiteNode)
 	nodes := make([]*GraphiteNode, 0)
 	splitQuery := strings.Split(query, ".")
-	for _, m := range metrics {
-		splitMetric := strings.Split(m, ".")
+	for _, m := range streams {
+		splitMetric := strings.Split(m.Name, ".")
 		idParts := splitQuery[:depth]
 		idParts = append(splitMetric[depth : depth+1])
 		id := strings.Join(idParts, ".")
@@ -55,4 +57,14 @@ func MetricsToTree(query string, metrics []string, depth int) []*GraphiteNode {
 		}
 	}
 	return nodes
+}
+
+func ConvertGraphiteTime(from string) (time.Time, error) {
+	if duration, err := time.ParseDuration(from); err == nil {
+		return time.Now().Add(duration), nil
+	} else if t, err := time.Parse(time.UnixDate, from); err == nil {
+		return t, nil
+	} else {
+		return time.Time{}, errors.New("Unable to parse time!")
+	}
 }

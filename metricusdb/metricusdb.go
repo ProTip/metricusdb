@@ -4,13 +4,15 @@ import (
 	"time"
 )
 
+type Dimensions map[string]string
+
 type Query struct {
 	Dimensions map[string]interface{}
 }
 
 type Stream struct {
-	Dimensions map[string]interface{}
-	Name       string
+	Dimensions
+	Name string
 }
 
 type StoreQuery struct {

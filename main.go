@@ -6,6 +6,7 @@ import (
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/cors"
 	"github.com/protip/metricusdb/metricusdb"
+	"github.com/protip/metricusdb/metricusdb/riakse"
 	"net/http"
 	"strings"
 )
@@ -20,24 +21,26 @@ func main() {
 	http.ListenAndServe(":8080", m)
 }
 
-func GetRender(req *http.Request, p martini.Params) string {
+func GetRender(req *http.Request, p martini.Params, w http.ResponseWriter) (int, string) {
 	v := req.URL.Query()
+	w.Header().Set("Content-Type", "application/json")
 	from := v.Get("from")
 	to := v.Get("to")
 	fmt.Println(from, to)
-	return "true"
+	return 500, "Not implemented"
 }
 
-func GetMetricQuery(req *http.Request, p martini.Params) string {
+func GetMetricQuery(req *http.Request, p martini.Params, w http.ResponseWriter) string {
 	v := req.URL.Query()
+	w.Header().Set("Content-Type", "application/json")
 	query := v.Get("query")
 	fmt.Println(query)
 	dimensions := metricusdb.TargetToDimensions(query)
 	fmt.Println(dimensions)
-	se := &metricusdb.RiakSE{Address: "10.1.1.8:8087"}
-	metrics, _ := se.ListMetrics(dimensions)
-	fmt.Println(metrics)
-	tree := metricusdb.MetricsToTree(query, metrics, len(strings.Split(query, "."))-1)
+	se := &riakse.RiakSE{Address: "192.168.1.66:8087"}
+	streams, _ := se.ListStreams(dimensions)
+	fmt.Println(streams)
+	tree := metricusdb.StreamsToTree(query, streams, len(strings.Split(query, "."))-1)
 	bSON, _ := json.Marshal(tree)
 	return string(bSON)
 }
