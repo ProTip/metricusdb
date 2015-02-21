@@ -18,13 +18,15 @@ type GraphiteNode struct {
 
 // Takes a graphite target and returns a list of dimensions used to find the
 // metric stream.
-func TargetToDimensions(target string) [][]string {
+func TargetToDimensions(target string) Dimensions {
 	splitTarget := strings.Split(target, ".")
-	dimensions := make([][]string, len(splitTarget))
+	dimensions := make([]Dimension, 0, 0)
 	for i, s := range splitTarget {
-		dimensions[i] = make([]string, 2, 2)
-		dimensions[i][0] = fmt.Sprintf("nodes.%d_s", i)
-		dimensions[i][1] = s
+		dimensions = append(dimensions,
+			Dimension{
+				Name:  fmt.Sprintf("nodes.%d_s", i),
+				Value: s,
+			})
 	}
 	return dimensions
 }

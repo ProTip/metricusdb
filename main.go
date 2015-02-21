@@ -37,7 +37,7 @@ func GetMetricQuery(req *http.Request, p martini.Params, w http.ResponseWriter) 
 	fmt.Println(query)
 	dimensions := metricusdb.TargetToDimensions(query)
 	fmt.Println(dimensions)
-	se := &riakse.RiakSE{Address: "192.168.1.66:8087"}
+	se := &riakse.RiakSE{Address: "192.168.1.66:8087", StreamIndex: "famous"}
 	streams, _ := se.ListStreams(dimensions)
 	fmt.Println(streams)
 	tree := metricusdb.StreamsToTree(query, streams, len(strings.Split(query, "."))-1)
